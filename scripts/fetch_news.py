@@ -3,6 +3,7 @@ import re
 import time
 import requests
 import xml.etree.ElementTree as ET
+from datetime import datetime, timezone
 
 RSS_URL = "https://tinybuddha.com/feed/"
 
@@ -44,15 +45,15 @@ def fetch_rss():
     return items
 
 def send_to_telegram(category, it, title_ru, desc_ru):
-
+    # ВСТАВЬ 
     token = "9093268140:AAHDUn5S9kg99ROBD9UMrytd0uWj5dQPlI0"
     chat_id = "-1004376020976" 
     
+
     text = (
         f"🌸 **Поддержка и вдохновение**\n\n"
         f"📖 **{title_ru}**\n\n"
-        f"📝 {desc_ru}...\n\n"
-        f"🔗 [Читать полностью]({it['link']})"
+        f"📝 {desc_ru}..."
     )
     
     if it['image'] and "http" in it['image']:
@@ -78,20 +79,46 @@ def send_to_telegram(category, it, title_ru, desc_ru):
         print(f"Ошибка отправки: {response.text}")
 
 def main():
-    print("=== Начинаем сбор постов для канала поддержки ===")
+    now_utc = datetime.now(timezone.utc)
+    hour = now_utc.hour
+    
+    print(f"=== Запуск в {hour} UTC ===")
     items = fetch_rss()
-    selected = items[:3] 
+    
+    # Берем 
+    selected = items[:3]
     
     if not selected:
         print("Свежих статей не найдено.")
         return
 
-    for it in selected:
-        print(f"Отправляем: {it['title']}")
+    
+    if hour == 5:
+
+        it = selected[0]
+        print(f"Отправляем 1-й пост: {it['title']}")
         title_ru = translate_text(it['title'])
         desc_ru = translate_text(it['description'])
         send_to_telegram("support", it, title_ru, desc_ru)
-        time.sleep(3)
+        
+    elif hour == 9:
+        
+        it = selected[1]
+        print(f"Отправляем 2-й пост: {it['title']}")
+        title_ru = translate_text(it['title'])
+        desc_ru = translate_text(it['description'])
+        send_to_telegram("support", it, title_ru, desc_ru)
+        
+    elif hour == 14:
+        
+        it = selected[2]
+        print(f"Отправляем 3-й пост: {it['title']}")
+        title_ru = translate_text(it['title'])
+        desc_ru = translate_text(it['description'])
+        send_to_telegram("support", it, title_ru, desc_ru)
+        
+    else:
+        print(f"Запуск в {hour} UTC не соответствует расписанию. Ждем следующего.")
 
 if __name__ == "__main__":
     main()
