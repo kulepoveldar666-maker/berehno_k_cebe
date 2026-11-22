@@ -45,11 +45,10 @@ def fetch_rss():
     return items
 
 def send_to_telegram(category, it, title_ru, desc_ru):
-    # ВСТАВЬ 
+    
     token = "9093268140:AAHDUn5S9kg99ROBD9UMrytd0uWj5dQPlI0"
     chat_id = "-1004376020976" 
     
-
     text = (
         f"🌸 **Поддержка и вдохновение**\n\n"
         f"📖 **{title_ru}**\n\n"
@@ -79,27 +78,20 @@ def send_to_telegram(category, it, title_ru, desc_ru):
         print(f"Ошибка отправки: {response.text}")
 
 def main():
-    now_utc = datetime.now(timezone.utc)
-    hour = now_utc.hour
-    
-    print(f"=== Запуск в {hour} UTC ===")
+    print("=== Тестовый запуск ===")
     items = fetch_rss()
-    
-    # Берем 
     selected = items[:3]
     
     if not selected:
         print("Свежих статей не найдено.")
         return
- 
-it = selected[0]
-print(f"Отправляем 1-й пост: {it['title']}")
-title_ru = translate_text(it['title'])
-desc_ru = translate_text(it['description'])
-send_to_telegram("support", it, title_ru, desc_ru)
-        
-    else:
-        print(f"Запуск в {hour} UTC не соответствует расписанию. Ждем следующего.")
+
+    
+    it = selected[0]
+    print(f"Отправляем: {it['title']}")
+    title_ru = translate_text(it['title'])
+    desc_ru = translate_text(it['description'])
+    send_to_telegram("support", it, title_ru, desc_ru)
 
 if __name__ == "__main__":
     main()
