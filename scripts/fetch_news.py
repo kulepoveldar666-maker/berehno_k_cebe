@@ -44,9 +44,9 @@ def fetch_rss():
     return items
 
 def send_to_telegram(category, it, title_ru, desc_ru):
-    # ВСТАВЬ СЮДА ТОКЕН НОВОГО БОТА И ID КАНАЛА
-    token = "ТОКЕН_НОВОГО_БОТА_СЮДА"
-    chat_id = "-100..." 
+
+    token = "9093268140:AAHDUn5S9kg99ROBD9UMrytd0uWj5dQPlI0"
+    chat_id = "-1004376020976" 
     
     text = (
         f"🌸 **Поддержка и вдохновение**\n\n"
