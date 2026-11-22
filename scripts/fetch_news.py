@@ -91,31 +91,12 @@ def main():
     if not selected:
         print("Свежих статей не найдено.")
         return
-
-    
-    if hour == 5:
-
-        it = selected[0]
-        print(f"Отправляем 1-й пост: {it['title']}")
-        title_ru = translate_text(it['title'])
-        desc_ru = translate_text(it['description'])
-        send_to_telegram("support", it, title_ru, desc_ru)
-        
-    elif hour == 9:
-        
-        it = selected[1]
-        print(f"Отправляем 2-й пост: {it['title']}")
-        title_ru = translate_text(it['title'])
-        desc_ru = translate_text(it['description'])
-        send_to_telegram("support", it, title_ru, desc_ru)
-        
-    elif hour == 14:
-        
-        it = selected[2]
-        print(f"Отправляем 3-й пост: {it['title']}")
-        title_ru = translate_text(it['title'])
-        desc_ru = translate_text(it['description'])
-        send_to_telegram("support", it, title_ru, desc_ru)
+ 
+it = selected[0]
+print(f"Отправляем 1-й пост: {it['title']}")
+title_ru = translate_text(it['title'])
+desc_ru = translate_text(it['description'])
+send_to_telegram("support", it, title_ru, desc_ru)
         
     else:
         print(f"Запуск в {hour} UTC не соответствует расписанию. Ждем следующего.")
