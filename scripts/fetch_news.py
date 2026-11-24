@@ -162,7 +162,7 @@ def collect_from_feeds(feeds, sent):
 
 def send_telegram(text, image=None):
     if not token or not chat_id:
-        print("Нет TG_TOKEN или TG_CHAT_ID")
+        print("9093268140:AAHDUn5S9kg99ROBD9UMrytd0uWj5dQPlI0 или -1004376020976")
         return False
     
     if image and image.startswith("http"):
