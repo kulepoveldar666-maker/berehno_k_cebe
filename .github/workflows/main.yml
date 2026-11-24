@@ -1,12 +1,12 @@
-name: AI Posts
+name: Psychology Posts
 
 on:
   schedule:
-    - cron: '0 5 * * *'   # 08:00 МСК (Глобальные новости)
-    - cron: '0 9 * * *'   # 12:00 МСК (Полезные лайфхаки)
-    - cron: '0 14 * * *'  # 17:00 МСК (Промпты для новичков)
-    - cron: '0 16 * * *'  # 19:00 МСК (Лайфхаки для начинающих)
-  workflow_dispatch: {}   # Кнопка для ручного запуска (для тестов)
+    - cron: '0 5 * * *'   # 08:00 МСК (Факт про эго)
+    - cron: '0 9 * * *'   # 12:00 МСК (Как найти себя)
+    - cron: '0 14 * * *'  # 17:00 МСК (Выгорание)
+    - cron: '0 16 * * *'  # 19:00 МСК (Личная жизнь)
+  workflow_dispatch: {}   # Кнопка для ручного запуска
 
 jobs:
   post:
@@ -24,9 +24,10 @@ jobs:
         
       - name: Run script
         env:
-          TG_TOKEN: "9093268140:AAHDUn5S9kg99ROBD9UMrytd0uWj5dQPlI0"
-          TG_CHAT_ID:  "-1004376020976"
-          MYMEMORY_EMAIL: "kulepoveldar666@gmail.com" # Лучше заменить на свой реальный email
+          # Теперь токены берутся из секретов репозитория
+          TG_TOKEN: ${{ secrets.TG_TOKEN }}
+          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+          MYMEMORY_EMAIL: "kulepoveldar666@gmail.com" 
         run: python scripts/fetch_news.py
 
       - name: Commit sent_news.json
