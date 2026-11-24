@@ -8,51 +8,80 @@ import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
 
 # ============ НАСТРОЙКИ ============
-token = os.getenv("9093268140:AAHDUn5S9kg99ROBD9UMrytd0uWj5dQPlI0")
-chat_id = os.getenv("-1004376020976")
-MYMEMORY_EMAIL = os.getenv("kulepoveldar666@gmail.com", "")
+token = os.getenv("TG_TOKEN")
+chat_id = os.getenv("TG_CHAT_ID")
+MYMEMORY_EMAIL = os.getenv("MYMEMORY_EMAIL", "")
 
 SENT_FILE = "sent_news.json"
 
 # Источники по категориям
-NEWS_FEEDS = [
-    "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml",
-    "https://venturebeat.com/category/ai/feed/",
-    "https://www.technologyreview.com/topic/artificial-intelligence/feed/",
-    "https://openai.com/news/rss.xml",
-    "https://blog.google/technology/ai/rss/",
+FEEDS_EGO = [
+    "https://tinybuddha.com/feed/",
+    "https://bethrowles.com/category/emotions/feed/",
 ]
 
-TIPS_FEEDS = [
-    "https://www.jeffsu.org/rss/",
-    "https://simonwillison.net/atom/everything/",
+FEEDS_FIND_SELF = [
+    "https://syntone.ru/feed/",
+    "https://news.zerkalo.io/rss/",
 ]
 
-PROMPT_FEEDS = [
-    "https://www.jeffsu.org/rss/",
-    "https://simonwillison.net/atom/everything/",
+FEEDS_BURNOUT = [
+    "https://tinybuddha.com/feed/",
+    "https://psi.mchs.gov.ru/rss/",
 ]
 
-BEGINNER_FEEDS = [
-    "https://www.jeffsu.org/rss/",
-    "https://theproductiveprompter.com/feed.xml",
+FEEDS_RELATIONSHIP = [
+    "https://tinybuddha.com/feed/",
+    "https://bethrowles.com/category/emotions/feed/",
 ]
 
-# ============ ЗАГЛУШКИ ДЛЯ РАЗНООБРАЗИЯ ============
-GREETINGS = [
-    "Привет, друзья! 👋",
-    "Всем привет! 🚀",
-    "Доброго времени суток! ✨",
-    "Приветствую! 🤖",
-    "Здравствуйте! 🌟",
+# ============ ШАБЛОНЫ ОФОРМЛЕНИЯ (разные для каждого поста) ============
+EGO_HEADERS = [
+    "🌸 <b>Интересный факт о женском эго</b>",
+    "💭 <b>А вы знали это про женское эго?</b>",
+    "🪞 <b>Женское эго: неожиданный факт</b>",
 ]
 
-CLOSINGS = [
-    "А вы что думаете? Пишите в комментариях 👇",
-    "Сохраняйте, чтобы не потерять 🔖",
+EGO_CLOSINGS = [
+    "А как у вас с этим? Пишите в комментариях 👇",
+    "Знакомо? Делитесь своим опытом 💬",
+    "Сохраните, чтобы подумать на досуге 🔖",
+]
+
+FIND_SELF_HEADERS = [
+    "🌿 <b>Как найти себя и настроиться на дела</b>",
+    "✨ <b>Потерялись? Вот что поможет</b>",
+    "🧭 <b>Как вернуться к себе и своим желаниям</b>",
+]
+
+FIND_SELF_CLOSINGS = [
     "Попробуйте и расскажите, как прошло 💬",
-    "Делитесь с теми, кому это пригодится 🤝",
-    "Ставьте реакцию, если было полезно ❤️",
+    "Делитесь с теми, кому это сейчас нужно 🤝",
+    "Ставьте ❤️, если было полезно",
+]
+
+BURNOUT_HEADERS = [
+    "🔥 <b>Что делать, если выгораешь на работе</b>",
+    "💆‍♀️ <b>Выгорание: как найти время на себя</b>",
+    "🛑 <b>Остановитесь. Это важно</b>",
+]
+
+BURNOUT_CLOSINGS = [
+    "Берегите себя. Вы важнее работы ❤️",
+    "Сохраните этот пост — пригодится 🔖",
+    "А как вы справляетесь с выгоранием? 👇",
+]
+
+RELATIONSHIP_HEADERS = [
+    "💞 <b>Лайфхак для личной жизни</b>",
+    "🌹 <b>Маленькая хитрость для отношений</b>",
+    "💕 <b>Как наладить личную жизнь: один шаг</b>",
+]
+
+RELATIONSHIP_CLOSINGS = [
+    "Попробуйте на этой неделе 💫",
+    "Расскажите, что получилось 💬",
+    "Сохраните и поделитесь с подругой 🤍",
 ]
 
 # ============ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ============
@@ -133,7 +162,7 @@ def collect_from_feeds(feeds, sent):
 
 def send_telegram(text, image=None):
     if not token or not chat_id:
-        print("Нет токена или chat_id")
+        print("Нет TG_TOKEN или TG_CHAT_ID")
         return False
     
     if image and image.startswith("http"):
@@ -150,87 +179,50 @@ def send_telegram(text, image=None):
     print(f"❌ Ошибка: {r.text}")
     return False
 
-# ============ ГЕНЕРАТОРЫ ПОСТОВ (РАЗНЫЕ ШАБЛОНЫ) ============
-def make_news_post(item):
-    """Глобальные новости ИИ"""
+# ============ ГЕНЕРАТОРЫ ПОСТОВ ============
+def make_ego_post(item):
     title = translate_text(item['title'])
     desc = translate_text(item['description'])
     if not title:
-        return None
+        return None, None
     
-    greeting = random.choice(GREETINGS)
-    closing = random.choice(CLOSINGS)
-    
-    templates = [
-        f"{greeting}\n\n🤖 <b>{title}</b>\n\n{desc}\n\n{closing}",
-        f"{greeting}\n\nЧто нового в мире ИИ?\n\n🔥 <b>{title}</b>\n\n{desc}\n\n{closing}",
-        f"{greeting}\n\n<b>{title}</b>\n\n{desc}\n\n{closing}",
-    ]
-    return random.choice(templates)
+    header = random.choice(EGO_HEADERS)
+    closing = random.choice(EGO_CLOSINGS)
+    text = f"{header}\n\n{title}\n\n{desc}\n\n{closing}"
+    return text, item.get('image')
 
-def make_tips_post(item):
-    """Полезные лайфхаки"""
+def make_find_self_post(item):
     title = translate_text(item['title'])
     desc = translate_text(item['description'])
     if not title:
-        return None
+        return None, None
     
-    greeting = random.choice(GREETINGS)
-    closing = random.choice(CLOSINGS)
-    
-    templates = [
-        f"{greeting}\n\n💡 <b>Лайфхак дня</b>\n\n{title}\n\n{desc}\n\n{closing}",
-        f"{greeting}\n\n<b>{title}</b>\n\n{desc}\n\n{closing}",
-        f"{greeting}\n\n📌 <b>Полезно знать</b>\n\n{title}\n\n{desc}\n\n{closing}",
-    ]
-    return random.choice(templates)
+    header = random.choice(FIND_SELF_HEADERS)
+    closing = random.choice(FIND_SELF_CLOSINGS)
+    text = f"{header}\n\n{title}\n\n{desc}\n\n{closing}"
+    return text, item.get('image')
 
-def make_prompt_post():
-    """Промпт для новичков — генерируется из шаблонов"""
-    prompts = [
-        {
-            "title": "Промпт для объяснения сложных тем простыми словами",
-            "body": "Скопируй и вставь в ChatGPT:\n\n<i>«Объясни [тема] так, будто мне 10 лет. Используй простые примеры из жизни. Без сложных терминов.»</i>\n\nЗамени [тема] на что угодно — нейросети, квантовые компьютеры, блокчейн."
-        },
-        {
-            "title": "Промпт для составления плана обучения",
-            "body": "Скопируй и вставь:\n\n<i>«Составь план изучения [навык] на 30 дней. Каждый день — одна конкретная задача на 30 минут. Учитывай, что я полный новичок.»</i>\n\nОтлично работает для любого навыка."
-        },
-        {
-            "title": "Промпт для проверки текста",
-            "body": "Скопируй и вставь:\n\n<i>«Проверь этот текст на ошибки и стиль. Предложи 3 варианта улучшения. Не меняй смысл.»</i>\n\nВставь свой текст после этой фразы."
-        },
-        {
-            "title": "Промпт для генерации идей",
-            "body": "Скопируй и вставь:\n\n<i>«Дай мне 10 идей для [проект/статья/бизнес]. Раздели на: простые (1 день), средние (1 неделя), сложные (1 месяц).»</i>\n\nРаботает для чего угодно."
-        },
-    ]
-    p = random.choice(prompts)
-    greeting = random.choice(GREETINGS)
-    closing = random.choice(CLOSINGS)
-    
-    templates = [
-        f"{greeting}\n\n🎯 <b>{p['title']}</b>\n\n{p['body']}\n\n{closing}",
-        f"{greeting}\n\n<b>{p['title']}</b>\n\n{p['body']}\n\n{closing}",
-    ]
-    return random.choice(templates)
-
-def make_beginner_post(item):
-    """Лайфхаки для начинающих"""
+def make_burnout_post(item):
     title = translate_text(item['title'])
     desc = translate_text(item['description'])
     if not title:
-        return None
+        return None, None
     
-    greeting = random.choice(GREETINGS)
-    closing = random.choice(CLOSINGS)
+    header = random.choice(BURNOUT_HEADERS)
+    closing = random.choice(BURNOUT_CLOSINGS)
+    text = f"{header}\n\n{title}\n\n{desc}\n\n{closing}"
+    return text, item.get('image')
+
+def make_relationship_post(item):
+    title = translate_text(item['title'])
+    desc = translate_text(item['description'])
+    if not title:
+        return None, None
     
-    templates = [
-        f"{greeting}\n\n🌱 <b>Для начинающих</b>\n\n{title}\n\n{desc}\n\n{closing}",
-        f"{greeting}\n\n<b>{title}</b>\n\n{desc}\n\n{closing}",
-        f"{greeting}\n\n🚀 <b>С чего начать?</b>\n\n{title}\n\n{desc}\n\n{closing}",
-    ]
-    return random.choice(templates)
+    header = random.choice(RELATIONSHIP_HEADERS)
+    closing = random.choice(RELATIONSHIP_CLOSINGS)
+    text = f"{header}\n\n{title}\n\n{desc}\n\n{closing}"
+    return text, item.get('image')
 
 # ============ ОСНОВНАЯ ЛОГИКА ============
 def main():
@@ -250,40 +242,39 @@ def main():
     item_link = None
     
     if hour == 5:
-        # 08:00 МСК — глобальные новости
-        fresh = collect_from_feeds(NEWS_FEEDS, sent)
+        fresh = collect_from_feeds(FEEDS_EGO, sent)
         if not fresh:
-            print("Нет новостей")
+            print("Нет постов про эго")
             return
         item = fresh[0]
-        text = make_news_post(item)
-        image = item.get('image')
+        text, image = make_ego_post(item)
         item_link = item['link']
         
     elif hour == 9:
-        # 12:00 МСК — полезные лайфхаки
-        fresh = collect_from_feeds(TIPS_FEEDS, sent)
+        fresh = collect_from_feeds(FEEDS_FIND_SELF, sent)
         if not fresh:
-            print("Нет лайфхаков")
+            print("Нет постов про поиск себя")
             return
         item = fresh[0]
-        text = make_tips_post(item)
-        image = item.get('image')
+        text, image = make_find_self_post(item)
         item_link = item['link']
         
     elif hour == 14:
-        # 17:00 МСК — промпт для новичков
-        text = make_prompt_post()
-        
-    elif hour == 16:
-        # 19:00 МСК — лайфхаки для начинающих
-        fresh = collect_from_feeds(BEGINNER_FEEDS, sent)
+        fresh = collect_from_feeds(FEEDS_BURNOUT, sent)
         if not fresh:
-            print("Нет постов для начинающих")
+            print("Нет постов про выгорание")
             return
         item = fresh[0]
-        text = make_beginner_post(item)
-        image = item.get('image')
+        text, image = make_burnout_post(item)
+        item_link = item['link']
+        
+    elif hour == 16:
+        fresh = collect_from_feeds(FEEDS_RELATIONSHIP, sent)
+        if not fresh:
+            print("Нет постов про отношения")
+            return
+        item = fresh[0]
+        text, image = make_relationship_post(item)
         item_link = item['link']
     
     if not text:
@@ -298,4 +289,4 @@ def main():
         print("Ссылка сохранена")
 
 if __name__ == "__main__":
-    main() 
+    main()
