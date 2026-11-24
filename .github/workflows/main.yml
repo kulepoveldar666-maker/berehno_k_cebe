@@ -25,8 +25,8 @@ jobs:
       - name: Run script
         env:
           # Теперь токены берутся из секретов репозитория
-          TG_TOKEN: ${{ secrets.TG_TOKEN }}
-          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+          TG_TOKEN: "9093268140:AAHDUn5S9kg99ROBD9UMrytd0uWj5dQPlI0"
+          TG_CHAT_ID: "-1004376020976"
           MYMEMORY_EMAIL: "kulepoveldar666@gmail.com" 
         run: python scripts/fetch_news.py
 
